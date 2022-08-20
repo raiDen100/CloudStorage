@@ -5,6 +5,7 @@ import com.raiden.cloudstorage.entities.StoredFile;
 import com.raiden.cloudstorage.entities.User;
 import com.raiden.cloudstorage.repositories.FileRepository;
 import lombok.AllArgsConstructor;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.tika.Tika;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,8 +49,12 @@ public class FileService {
     private StoredFile addFile(MultipartFile multipartFile, Folder parentFolder, User owner){
         String fileExtension = getFileExtension(multipartFile.getOriginalFilename());
         String fileName = multipartFile.getOriginalFilename();
-        if (multipartFile.getOriginalFilename().contains("."))
-            fileName = multipartFile.getOriginalFilename().substring(0, multipartFile.getOriginalFilename().lastIndexOf("."));
+        if (multipartFile.getOriginalFilename().contains(".")){
+            StringBuilder newName = new StringBuilder(multipartFile.getOriginalFilename());
+            newName.replace(multipartFile.getOriginalFilename().lastIndexOf(fileExtension), multipartFile.getOriginalFilename().lastIndexOf(fileExtension) + fileExtension.length(), "");
+            fileName = newName.toString();
+            System.out.println(fileName);
+        }
 
         String fileMimeType = getMimeType(multipartFile);
 
@@ -81,10 +86,7 @@ public class FileService {
     }
 
     private String getFileExtension(String fileName){
-        int index = fileName.lastIndexOf(".");
-        if(index == -1)
-            return "";
-        return fileName.substring(index + 1);
+        return FilenameUtils.getExtension(fileName);
     }
     private String getFileDisplayname(Folder parentFolder, String displayName, int i){
 
