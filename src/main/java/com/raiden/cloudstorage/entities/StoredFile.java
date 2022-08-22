@@ -10,6 +10,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Table
@@ -30,5 +31,5 @@ public class StoredFile extends Resource{
     private List<StoredZip> zips;
 
     @OneToMany(mappedBy = "file")
-    private List<Thumbnail> thumbnails;
+    private List<Thumbnail> thumbnails = new ArrayList<>();
 }
