@@ -65,7 +65,10 @@ public class FolderService {
         folderRepository.delete(folder);
     }
 
-    public void renameFile(String folderId, String displayName) {
+    public void renameFolder(String folderId, String displayName) {
+        if (displayName.contains("/"))
+            throw new IllegalArgumentException("Displayname cannot contain '/'");
+
         Folder folder = getFolderById(folderId);
         folder.setDisplayName(displayName);
         folderRepository.save(folder);

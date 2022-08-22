@@ -36,10 +36,10 @@ public class FolderController {
         folderService.deleteFolder(folder);
     }
     @PutMapping(path = "/rename/{folderId}")
-    public void renameFile(@PathVariable(name = "folderId") String fileId, @RequestBody RenameResourceRequest renameRequest, @RequestHeader("Authorization") String bearer){
+    public void renameFolder(@PathVariable(name = "folderId") String fileId, @RequestBody RenameResourceRequest renameRequest, @RequestHeader("Authorization") String bearer){
         User user = userService.getUserByToken(bearer);
 
-        folderService.renameFile(fileId, renameRequest.getDisplayName());
+        folderService.renameFolder(fileId, renameRequest.getDisplayName());
     }
 
     @GetMapping

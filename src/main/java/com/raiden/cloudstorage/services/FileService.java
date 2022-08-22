@@ -29,6 +29,9 @@ public class FileService {
     }
 
     public void renameFile(String fileId, String name){
+        if (name.contains("/"))
+            throw new IllegalArgumentException("Displayname cannot contain '/'");
+
         StoredFile file = getFileById(fileId);
         file.setDisplayName(getFileDisplayname(file.getParentFolder(), name, 1));
         fileRepository.save(file);
