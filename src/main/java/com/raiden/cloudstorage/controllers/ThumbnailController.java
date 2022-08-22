@@ -1,12 +1,14 @@
 package com.raiden.cloudstorage.controllers;
 
 import com.raiden.cloudstorage.entities.StoredFile;
+import com.raiden.cloudstorage.entities.Thumbnail;
 import com.raiden.cloudstorage.services.FileService;
 import com.raiden.cloudstorage.services.StorageService;
 import lombok.AllArgsConstructor;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayOutputStream;
@@ -21,17 +23,15 @@ public class ThumbnailController {
     private final FileService fileService;
     private final StorageService storageService;
 
+
     @GetMapping(path = "/{fileId}", produces = "image/jpg")
     public ResponseEntity<byte[]> getThumbnail(@PathVariable(name = "fileId") String fileId) throws IOException {
 
         StoredFile storedFile = fileService.getFileById(fileId);
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-        Thumbnails.of(storageService.getFile(storedFile))
-                .size(400, 400)
-                .outputFormat("jpg")
-                .toOutputStream(baos);
+        Thumbnail thumbnail = storedFile.getThumbnails().stream()
+                .findFirst()
+                .orElseThrow();
 
         CacheControl cacheControl = CacheControl
                 .maxAge(72, TimeUnit.HOURS)
@@ -40,6 +40,6 @@ public class ThumbnailController {
 
         return ResponseEntity.ok()
                 .cacheControl(cacheControl)
-                .body(baos.toByteArray());
+                .body(thumbnail.getFile64());
     }
 }

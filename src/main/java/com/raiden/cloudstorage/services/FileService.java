@@ -7,6 +7,7 @@ import com.raiden.cloudstorage.repositories.FileRepository;
 import lombok.AllArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.tika.Tika;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,6 +19,7 @@ import java.util.Optional;
 public class FileService {
     private final FileRepository fileRepository;
     private final StorageService storageService;
+    private final KafkaTemplate<String, String> kafkaTemplate;
     private final Tika tika;
 
 
@@ -51,7 +53,7 @@ public class FileService {
         String fileName = multipartFile.getOriginalFilename();
         if (multipartFile.getOriginalFilename().contains(".")){
             StringBuilder newName = new StringBuilder(multipartFile.getOriginalFilename());
-            newName.replace(multipartFile.getOriginalFilename().lastIndexOf(fileExtension), multipartFile.getOriginalFilename().lastIndexOf(fileExtension) + fileExtension.length(), "");
+            newName.replace(multipartFile.getOriginalFilename().lastIndexOf(fileExtension)-1, multipartFile.getOriginalFilename().lastIndexOf(fileExtension) + fileExtension.length(), "");
             fileName = newName.toString();
             System.out.println(fileName);
         }
@@ -72,6 +74,8 @@ public class FileService {
         storedFile.setPath(storedFile.getPath() + "/" + storedFile.getId() + "." + fileExtension);
         fileRepository.save(storedFile);
         storageService.saveFile(multipartFile, storedFile.getPath());
+
+        kafkaTemplate.send("thumbnail", storedFile.getId());
         return storedFile;
     }
 

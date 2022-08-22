@@ -11,3 +11,5 @@ spring.servlet.multipart.max-file-size=128GB
 spring.servlet.multipart.max-request-size=128GB
 
 jwt.secret=secret
+
+spring.kafka.bootstrap-servers=
