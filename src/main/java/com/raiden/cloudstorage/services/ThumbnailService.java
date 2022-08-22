@@ -44,7 +44,6 @@ public class ThumbnailService {
 
         BufferedImage bufferedImage = videoUtil.getMiddleFrame(storageService.getFile(storedFile));
         createImageThumbnail(bufferedImage, baos);
-        saveThumbnail(storedFile, baos.toByteArray());
     }
 
     private void saveThumbnail(StoredFile storedFile, byte[] bytes){
