@@ -30,6 +30,7 @@ public class Thumbnail {
     @Lob
     @Basic(fetch = FetchType.LAZY)
     @Type(type = "org.hibernate.type.BinaryType")
+    @JsonIgnore
     @Column(name = "file64")
     private byte[] file64;
 
