@@ -80,12 +80,14 @@ public class ResourceService {
         List<StoredFile> files = multiResourceRequest.getFiles();
 
         for (Folder f : folders){
-
-            folderService.deleteFolder(f);
+            Folder folder = folderService.getFolderById(f.getId());
+            folderService.deleteFolder(folder);
         }
 
-        for (StoredFile f : files)
-            fileService.deleteFile(f);
+        for (StoredFile f : files){
+            StoredFile file = fileService.getFileById(f.getId());
+            fileService.deleteFile(file);
+        }
 
         return multiResourceRequest;
     }
