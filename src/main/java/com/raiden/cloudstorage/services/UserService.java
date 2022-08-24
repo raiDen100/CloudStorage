@@ -1,9 +1,11 @@
 package com.raiden.cloudstorage.services;
 
 import com.raiden.cloudstorage.entities.User;
+import com.raiden.cloudstorage.exceptions.UsernameTakenException;
 import com.raiden.cloudstorage.repositories.UserRepository;
 import com.raiden.cloudstorage.utils.JwtUtil;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +24,7 @@ public class UserService {
         Optional<User> userCheck = userRepository.findByUsername(user.getUsername());
 
         if(userCheck.isPresent())
-            throw new IllegalArgumentException("Username '%s' already exists".formatted(user.getUsername()));
+            throw new UsernameTakenException();
 
         roleService.assignDefaultRole(user);
         user.setPassword(encoder.encode(user.getPassword()));
