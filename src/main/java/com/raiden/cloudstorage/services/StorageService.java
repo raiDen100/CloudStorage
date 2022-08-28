@@ -2,6 +2,12 @@ package com.raiden.cloudstorage.services;
 
 import com.raiden.cloudstorage.entities.StoredFile;
 import lombok.AllArgsConstructor;
+import org.apache.commons.fileupload.FileItemIterator;
+import org.apache.commons.fileupload.FileItemStream;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.util.Streams;
+import org.apache.commons.io.IOUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -9,8 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
-import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
+import java.io.*;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -34,12 +40,37 @@ public class StorageService {
         }
     }
 
-    public void saveFile(MultipartFile file, String path) {
-        try{
-            file.transferTo(new File(env.getProperty("upload.directory") + path));
-        }catch(IOException e){
-            System.out.println(e.getMessage());
+    public void saveFile(HttpServletRequest request, String path) throws IOException, FileUploadException {
+        ServletFileUpload upload = new ServletFileUpload();
+        FileItemIterator iterStream = upload.getItemIterator(request);
+        while (iterStream.hasNext()) {
+            FileItemStream item = iterStream.next();
+            String name = item.getFieldName();
+            InputStream stream = item.openStream();
+            if (!item.isFormField()) {
+                // Process the InputStream
+                try (
+                    InputStream uploadedStream = stream;
+                    OutputStream out = new FileOutputStream(env.getProperty("upload.directory") + path)) {
+
+                    IOUtils.copy(uploadedStream, out);
+                }
+            } else {
+                String formFieldValue = Streams.asString(stream);
+            }
         }
+    }
+
+    public void saveFile(InputStream inputStream, String path) throws IOException, FileUploadException {
+
+        // Process the InputStream
+        try (
+                InputStream uploadedStream = inputStream;
+                OutputStream out = new FileOutputStream(env.getProperty("upload.directory") + path)) {
+
+            IOUtils.copy(uploadedStream, out);
+        }
+
     }
 
     public Resource getFileToDownload(String p) throws IOException {

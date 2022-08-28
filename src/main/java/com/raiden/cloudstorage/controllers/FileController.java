@@ -7,8 +7,12 @@ import com.raiden.cloudstorage.entities.User;
 import com.raiden.cloudstorage.services.FileService;
 import com.raiden.cloudstorage.services.UserService;
 import lombok.AllArgsConstructor;
+import org.apache.commons.fileupload.FileUploadException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 @RestController
 @AllArgsConstructor
@@ -19,10 +23,10 @@ public class FileController {
     private final UserService userService;
 
     @PostMapping(path = "/upload/{id}")
-    public StoredFile saveFile(@RequestParam("files") MultipartFile[] file, @PathVariable(name = "id") Folder parentFolder, @RequestHeader("Authorization") String bearer){
+    public StoredFile saveFile(HttpServletRequest request, @PathVariable(name = "id") Folder parentFolder, @RequestHeader("Authorization") String bearer) throws IOException, FileUploadException {
         User user = userService.getUserByToken(bearer);
 
-        return fileService.addFiles(file, parentFolder, user);
+        return fileService.addFiles(parentFolder, user, request);
     }
 
     @PutMapping(path = "/rename/{fileId}")
