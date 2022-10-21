@@ -41,7 +41,7 @@ public class VideoUtil {
         return null;
     }
 
-    private static BufferedImage FrameToBufferedImage(Frame frame) {
+    private BufferedImage FrameToBufferedImage(Frame frame) {
         Java2DFrameConverter converter = new Java2DFrameConverter();
         BufferedImage bufferedImage = converter.getBufferedImage(frame);
         return bufferedImage;
