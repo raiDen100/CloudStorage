@@ -36,16 +36,22 @@ public class FileService {
                 .orElseThrow();
     }
 
-    public void renameFile(String fileId, String name){
+    public void renameFile(String fileId, String name, User user){
         if (name.contains("/"))
             throw new IllegalArgumentException("Displayname cannot contain '/'");
 
         StoredFile file = getFileById(fileId);
+        if(!file.getOwner().getId().equals(user.getId()))
+            throw new RuntimeException("Access denied");
+
         file.setDisplayName(getFileDisplayname(file.getParentFolder(), name, 1));
         fileRepository.save(file);
     }
 
     public StoredFile addFiles(Folder parentFolder, User owner, HttpServletRequest request) throws IOException, FileUploadException {
+        System.out.println(parentFolder.getOwner().getDisplayName());
+        if(!parentFolder.getOwner().getId().equals(owner.getId()))
+            throw new RuntimeException("Access denied");
 
         return addFile(parentFolder, owner, request);
     }
@@ -89,9 +95,9 @@ public class FileService {
 
             storedFile.setDisplayName(getFileDisplayname(parentFolder, fileName, 1));
             storedFile.setExtension(fileExtension);
-
-
             storedFile.setPath(storedFile.getPath() + "/" + storedFile.getId() + "." + fileExtension);
+            fileRepository.save(storedFile);
+
             if (!item.isFormField()) {
                 storageService.saveFile(stream, storedFile.getPath());
             }

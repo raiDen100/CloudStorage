@@ -24,7 +24,7 @@ public class ResourceService {
     private final ZipService zipService;
 
     @Transactional
-    public void moveResources(MultiResourceRequest moveRequest, String destinationId){
+    public void moveResources(MultiResourceRequest moveRequest, String destinationId, User user){
         List<Folder> folders = moveRequest.getFolders();
         List<StoredFile> files = moveRequest.getFiles();
 
@@ -35,10 +35,14 @@ public class ResourceService {
                 throw new RuntimeException();
 
             Folder folder = folderService.getFolderById(f.getId());
+            if (!folder.getOwner().getId().equals(user.getId()))
+                throw new RuntimeException("Access denied");
             folder.setParentFolder(destination);
         }
         for (StoredFile f : files){
             StoredFile file = fileService.getFileById(f.getId());
+            if (!file.getOwner().getId().equals(user.getId()))
+                throw new RuntimeException("Access denied");
             file.setDisplayName(getFileDisplayname(destination, file.getDisplayName(), 1));
             file.setParentFolder(destination);
         }
@@ -75,17 +79,21 @@ public class ResourceService {
     }
 
     @Transactional
-    public MultiResourceRequest deleteResources(MultiResourceRequest multiResourceRequest) {
+    public MultiResourceRequest deleteResources(MultiResourceRequest multiResourceRequest, User user) {
         List<Folder> folders = multiResourceRequest.getFolders();
         List<StoredFile> files = multiResourceRequest.getFiles();
 
         for (Folder f : folders){
             Folder folder = folderService.getFolderById(f.getId());
+            if(!folder.getOwner().getId().equals(user.getId()))
+                throw new RuntimeException("Access denied");
             folderService.deleteFolder(folder);
         }
 
         for (StoredFile f : files){
             StoredFile file = fileService.getFileById(f.getId());
+            if(!file.getOwner().getId().equals(user.getId()))
+                throw new RuntimeException("Access denied");
             fileService.deleteFile(file);
         }
 

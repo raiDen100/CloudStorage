@@ -23,9 +23,14 @@ public class FolderController {
     }
 
     @GetMapping(path = "/{folderId}")
-    public Folder getFolder(@PathVariable(name = "folderId") String folderId){
+    public Folder getFolder(@PathVariable(name = "folderId") String folderId, @RequestHeader("Authorization") String bearer){
+        User user = userService.getUserByToken(bearer);
 
-        return folderService.getFolderById(folderId);
+        Folder folder = folderService.getFolderById(folderId);
+        if (!folder.getOwner().getId().equals(user.getId()))
+            throw new RuntimeException("Access denied");
+
+        return  folder;
     }
 
     @DeleteMapping(path = "/{id}")
@@ -33,13 +38,16 @@ public class FolderController {
         User user = userService.getUserByToken(bearer);
 
         Folder folder = folderService.getFolderById(folderId);
+        if (!folder.getOwner().getId().equals(user.getId()))
+            throw new RuntimeException("Access denied");
+
         folderService.deleteFolder(folder);
     }
     @PutMapping(path = "/rename/{folderId}")
     public void renameFolder(@PathVariable(name = "folderId") String fileId, @RequestBody RenameResourceRequest renameRequest, @RequestHeader("Authorization") String bearer){
         User user = userService.getUserByToken(bearer);
 
-        folderService.renameFolder(fileId, renameRequest.getDisplayName());
+        folderService.renameFolder(fileId, renameRequest.getDisplayName(), user);
     }
 
     @GetMapping

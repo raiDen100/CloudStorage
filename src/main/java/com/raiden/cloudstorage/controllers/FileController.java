@@ -33,7 +33,7 @@ public class FileController {
     public void renameFile(@PathVariable(name = "fileId") String fileId, @RequestBody RenameResourceRequest renameRequest, @RequestHeader("Authorization") String bearer){
         User user = userService.getUserByToken(bearer);
 
-        fileService.renameFile(fileId, renameRequest.getDisplayName());
+        fileService.renameFile(fileId, renameRequest.getDisplayName(), user);
     }
 
     @DeleteMapping(path = "/delete/{fileId}")
@@ -41,6 +41,10 @@ public class FileController {
         User user = userService.getUserByToken(bearer);
 
         StoredFile file = fileService.getFileById(fileId);
+
+        if(!file.getOwner().getId().equals(user.getId()))
+            throw new RuntimeException("Access denied");
+
         fileService.deleteFile(file);
     }
 }

@@ -36,6 +36,9 @@ public class FolderService {
     }
 
     public Folder createFolder(String displayName, Folder parentFolder, User owner){
+        if(!parentFolder.getOwner().getId().equals(owner.getId()))
+            throw new RuntimeException("Access denied");
+
         Folder folder = Folder.builder()
                 .folderType("subFolder")
                 .parentFolder(parentFolder)
@@ -65,11 +68,14 @@ public class FolderService {
         folderRepository.delete(folder);
     }
 
-    public void renameFolder(String folderId, String displayName) {
+    public void renameFolder(String folderId, String displayName, User user) {
         if (displayName.contains("/"))
             throw new IllegalArgumentException("Displayname cannot contain '/'");
 
         Folder folder = getFolderById(folderId);
+        if (!folder.getOwner().getId().equals(user.getId()))
+            throw new RuntimeException("Access denied");
+
         folder.setDisplayName(displayName);
         folderRepository.save(folder);
     }

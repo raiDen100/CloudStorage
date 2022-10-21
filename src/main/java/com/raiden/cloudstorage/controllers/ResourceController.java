@@ -25,7 +25,7 @@ public class ResourceController {
             @RequestHeader("Authorization") String bearer){
         User user = userService.getUserByToken(bearer);
 
-        resourceService.moveResources(multiResourceRequest, folderId);
+        resourceService.moveResources(multiResourceRequest, folderId, user);
     }
 
     @DeleteMapping(path = "/delete")
@@ -34,7 +34,7 @@ public class ResourceController {
             @RequestHeader("Authorization") String bearer){
         User user = userService.getUserByToken(bearer);
 
-        resourceService.deleteResources(multiResourceRequest);
+        resourceService.deleteResources(multiResourceRequest, user);
     }
 
     @PostMapping(path = "/zip")
