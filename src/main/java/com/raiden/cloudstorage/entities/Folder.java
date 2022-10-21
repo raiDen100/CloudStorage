@@ -1,6 +1,7 @@
 package com.raiden.cloudstorage.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.OnDelete;
@@ -25,6 +26,7 @@ public class Folder extends Resource{
     private List<StoredFile> files = new ArrayList<>();
 
     @OneToMany(mappedBy = "parentFolder")
+    @JsonIgnoreProperties({"folders", "files", "parentFolder"})
     private List<Folder> folders = new ArrayList<>();
     private String folderType;
 
