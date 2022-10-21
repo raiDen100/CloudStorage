@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.List;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
@@ -94,12 +95,20 @@ public class ZipService {
     }
 
     private void putZipEntry(ZipOutputStream zos, StoredFile file) throws IOException {
-        ZipEntry ze = new ZipEntry(file.getDisplayName() + "." + file.getExtension());
+        String filename = file.getDisplayName();
+        if(file.getExtension() != null && !Objects.equals(file.getExtension(), ""))
+            filename += "." + file.getExtension();
+
+        ZipEntry ze = new ZipEntry(filename);
         zos.putNextEntry(ze);
     }
     private void putZipEntry(ZipOutputStream zos, StoredFile file, String path) throws IOException {
         try{
-            ZipEntry ze = new ZipEntry(path + "/" + file.getDisplayName() + "." + file.getExtension());
+            String filename = file.getDisplayName();
+            if(file.getExtension() != null && !Objects.equals(file.getExtension(), ""))
+                filename += "." + file.getExtension();
+
+            ZipEntry ze = new ZipEntry(path + "/" + filename);
             zos.putNextEntry(ze);
         }catch(ZipException e){
             putZipEntry(zos, file, path, 1);
@@ -107,9 +116,11 @@ public class ZipService {
 
     }
     private void putZipEntry(ZipOutputStream zos, StoredFile file, String path, int i) throws IOException {
-        String fileName = getFileDisplayname(file.getDisplayName(), i);
+        String filename = getFileDisplayname(file.getDisplayName(), i);
         try{
-            ZipEntry ze = new ZipEntry(path + "/" + fileName + "." + file.getExtension());
+            if(file.getExtension() != null && !Objects.equals(file.getExtension(), ""))
+                filename += "." + file.getExtension();
+            ZipEntry ze = new ZipEntry(path + "/" + filename);
             zos.putNextEntry(ze);
         }catch(ZipException e){
             putZipEntry(zos, file, path, ++i);

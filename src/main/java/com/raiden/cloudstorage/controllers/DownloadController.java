@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Objects;
 
 @RestController
 @RequestMapping(path = "/api/download")
@@ -30,8 +31,14 @@ public class DownloadController {
 
         Resource resource = storageService.getFileToDownload(file.getPath());
 
+        String filename = file.getDisplayName();
+
+        if(file.getExtension() != null && !Objects.equals(file.getExtension(), ""))
+            filename += "." + file.getExtension();
+
+
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=%s".formatted(file.getDisplayName() + "." + file.getExtension()));
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=%s".formatted(filename));
 
         return ResponseEntity.ok()
                 .headers(headers)
